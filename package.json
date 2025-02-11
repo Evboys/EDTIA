@@ -1,5 +1,6 @@
 {
   "name": "EDTIA",
+  "proxy": "https://progpedammi.iut-tlse3.fr",
   "version": "0.1.0",
   "private": true,
   "dependencies": {

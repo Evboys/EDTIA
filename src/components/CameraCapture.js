@@ -25,6 +25,12 @@ const CameraCapture = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (extractedText) {
+      sendToApi(extractedText);
+    }
+  }, [extractedText]);
+
   const initializeTesseract = async () => {
     try {
       workerRef.current = await createWorker();
@@ -85,6 +91,72 @@ const CameraCapture = () => {
       .replace(/[oO]/g, '0') // Remplace o et O par 0
       .replace(/\s+/g, '') // Supprime tous les espaces
       .trim();
+  };
+
+  const getRoomId = (text) => {
+    switch (text) {
+      case 'M01-TD':
+        return 12673;
+      case 'M02-TD':
+        return 12981;
+      case 'M03-TP':
+        return 19393;
+      case 'M05-TP':
+        return 12680;
+      case 'M06-TP':
+        return 43372;
+      case 'M07-TP':
+        return 12677;
+      case 'M09-TP':
+        return 12678;
+      case 'M10-TP':
+        return 12679;
+      case 'M11-TD':
+        return 12674;
+      case 'M13-TP':
+        return 62575;
+      case 'M14-TD':
+        return 13927;
+      default:
+        return null;
+    }
+  };
+
+  const sendToApi = async (text) => {
+    const id = getRoomId(text);
+    if (!id) return;
+
+    const isTP = text.endsWith('-TP');
+    const payload = {
+      salle: [
+        {
+          id,
+          title: text,
+          eventColor: isTP ? '#FFFFBF' : '#FFD7B0'
+        }
+      ]
+    };
+
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const response = await fetch(`/APICelcat/public/sallesmmi?date=${today}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        mode: 'cors',
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erreur HTTP: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Réponse API:', data);
+    } catch (error) {
+      console.error('Erreur lors de l\'envoi à l\'API:', error);
+    }
   };
 
   const isValidFormat = (text) => {
