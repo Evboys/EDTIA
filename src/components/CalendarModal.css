@@ -1,0 +1,90 @@
+.rbc-calendar {
+  background-color: white;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+}
+
+.rbc-header {
+  color: #1F2937;
+  border-bottom: 1px solid #E5E7EB !important;
+  padding: 12px 8px !important;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.875rem;
+  letter-spacing: 0.05em;
+  background-color: #F3F4F6;
+}
+
+.rbc-time-header {
+  border-bottom: 1px solid #E5E7EB !important;
+  background: white;
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+}
+
+.rbc-time-content {
+  border-top: 1px solid #E5E7EB !important;
+  background: white;
+}
+
+.rbc-time-gutter {
+  color: #4B5563;
+  font-size: 0.875rem;
+  font-weight: 500;
+  background-color: #ffffff;
+}
+
+.rbc-timeslot-group {
+  border-bottom: 1px solid #E5E7EB !important;
+  min-height: 80px !important;
+}
+
+.rbc-time-slot {
+  color: #6B7280;
+}
+
+.rbc-time-content > * + * > * {
+  border-left: 2px solid #E5E7EB !important;
+}
+
+.rbc-time-header-content {
+  border-left: 2px solid #E5E7EB !important;
+}
+
+.rbc-today {
+  background-color: #F5F3FF !important;
+}
+
+.rbc-current-time-indicator {
+  background: #8B5CF6 !important;
+  height: 2px !important;
+}
+
+.rbc-time-view {
+  background: white;
+  border: 1px solid #E5E7EB !important;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+.rbc-time-header-gutter {
+  background: #F9FAFB !important;
+}
+
+.rbc-label {
+  padding: 8px !important;
+}
+
+.rbc-event {
+  background: none !important;
+  border: none !important;
+  margin: 1px 2px !important;
+}
+
+.rbc-event-label {
+  display: none !important;
+}
+
+.rbc-event.rbc-selected {
+  background: none !important;
+}

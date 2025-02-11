@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Camera } from '@capacitor/camera';
 import { createWorker, createScheduler } from 'tesseract.js';
+import CalendarModal from './CalendarModal';
 
 const CameraCapture = () => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const [extractedText, setExtractedText] = useState('');
-  const [isProcessing, setIsProcessing] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [hasValidResult, setHasValidResult] = useState(false);
   const [isFrontCamera, setIsFrontCamera] = useState(false);
@@ -14,6 +14,9 @@ const CameraCapture = () => {
   const streamRef = useRef(null);
   const lastSuccessRef = useRef(Date.now());
   const analysisCountRef = useRef(0);
+  const [day, setDay] = useState(null);
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [calendarEvents, setCalendarEvents] = useState([])
 
   useEffect(() => {
     initializeCamera();
@@ -153,7 +156,14 @@ const CameraCapture = () => {
       }
 
       const data = await response.json();
+      setDay(data);
       console.log('Réponse API:', data);
+      
+      // Open calendar with the received data
+      if (data && Array.isArray(data)) {
+        setCalendarEvents(data);
+        setIsCalendarOpen(true);
+      }
     } catch (error) {
       console.error('Erreur lors de l\'envoi à l\'API:', error);
     }
@@ -182,12 +192,21 @@ const CameraCapture = () => {
 
   const reinitializeWorker = async () => {
     console.log('Réinitialisation du worker Tesseract...');
-    if (workerRef.current) {
-      await workerRef.current.terminate();
+    try {
+      if (workerRef.current) {
+        await workerRef.current.terminate();
+      }
+      workerRef.current = await createWorker();
+      await workerRef.current.loadLanguage('fra');
+      await workerRef.current.initialize('fra');
+      await workerRef.current.setParameters({
+        tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-',
+      });
+      lastSuccessRef.current = Date.now();
+      analysisCountRef.current = 0;
+    } catch (error) {
+      console.error('Erreur lors de la réinitialisation du worker:', error);
     }
-    await initializeTesseract();
-    lastSuccessRef.current = Date.now();
-    analysisCountRef.current = 0;
   };
 
   const analyzeFrame = async (frameData) => {
@@ -240,6 +259,10 @@ const CameraCapture = () => {
         return;
       }
 
+      if (!workerRef.current) {
+        await reinitializeWorker();
+      }
+
       const frameData = captureFrame();
       if (frameData) {
         await analyzeFrame(frameData);
@@ -249,8 +272,9 @@ const CameraCapture = () => {
     // Lancer l'analyse toutes les 500ms
     analysisInterval = setInterval(analyzeLoop, 500);
 
-    // Nettoyer l'intervalle quand le composant est démonté
-    return () => clearInterval(analysisInterval);
+    return () => {
+      clearInterval(analysisInterval);
+    };
   };
 
   const resetAnalysis = async () => {
@@ -265,9 +289,7 @@ const CameraCapture = () => {
 
   return (
     <div className="fixed inset-0 bg-black">
-      {/* Conteneur principal en flex column avec safe areas */}
       <div className="flex flex-col h-full relative pt-safe pb-safe">
-        {/* En-tête avec le bouton de changement de caméra */}
         <div className="absolute top-0 left-0 right-0 z-10 bg-gradient-to-b from-black/50 to-transparent h-32">
           <div className="p-4 mt-safe">
             <button
@@ -334,6 +356,20 @@ const CameraCapture = () => {
           )}
         </div>
       </div>
+      <CalendarModal
+        isOpen={isCalendarOpen}
+        onClose={async () => {
+          setIsCalendarOpen(false);
+          setDay(null);
+          setHasValidResult(false);
+          setExtractedText('');
+          setIsAnalyzing(true);
+          await reinitializeWorker();
+          startAnalysis();
+        }}
+        events={calendarEvents}
+        extractedText={extractedText}
+      />
     </div>
   );
 };
