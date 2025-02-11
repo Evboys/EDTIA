@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+    visionapp:
+        build:
+            context: "."
+            dockerfile: "./Dockerfile"
+        image: "visionapp"
+        container_name: "visionapp"
+        privileged: false
+        restart: "always"
+        stdin_open: true
+        tty: true
+        ports:
+            - "80:1880"
+        networks:
+            - "network"
+
+networks:
+    network:
+        driver: "bridge"
+
