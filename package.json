@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@capacitor-community/http": "^1.4.1",
     "@capacitor/android": "^6.2.0",
     "@capacitor/camera": "^6.1.2",
     "@capacitor/cli": "^6.2.0",

@@ -49,5 +49,10 @@
 	<string>Cette application nécessite l\'accès à la caméra pour scanner les codes de salle.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Cette application n\'utilise pas le microphone mais la permission est requise pour la caméra.</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
 </dict>
 </plist>

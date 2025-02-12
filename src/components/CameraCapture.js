@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Camera } from '@capacitor/camera';
+import { Http } from '@capacitor-community/http';
 import { createWorker, createScheduler } from 'tesseract.js';
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
 import CalendarModal from './CalendarModal';
 
 const CameraCapture = () => {
@@ -17,6 +20,7 @@ const CameraCapture = () => {
   const [day, setDay] = useState(null);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [calendarEvents, setCalendarEvents] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     initializeCamera();
@@ -126,6 +130,7 @@ const CameraCapture = () => {
   };
 
   const sendToApi = async (text) => {
+    setIsLoading(true);
     const id = getRoomId(text);
     if (!id) return;
 
@@ -141,21 +146,20 @@ const CameraCapture = () => {
     };
 
     try {
-      const today = new Date().toISOString().split('T')[0];
-      const response = await fetch(`/APICelcat/public/sallesmmi?date=${today}`, {
-        method: 'POST',
+      const today = format(new Date(), 'yyyy-MM-dd', { locale: fr });
+      const response = await Http.post({
+        url: `https://progpedammi.iut-tlse3.fr/APICelcat/public/sallesmmi?date=${today}`,
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
-        mode: 'cors',
-        body: JSON.stringify(payload)
+        data: payload
       });
 
-      if (!response.ok) {
+      if (!response.data) {
         throw new Error(`Erreur HTTP: ${response.status}`);
       }
 
-      const data = await response.json();
+      const data = response.data;
       setDay(data);
       console.log('Réponse API:', data);
       
@@ -163,6 +167,7 @@ const CameraCapture = () => {
       if (data && Array.isArray(data)) {
         setCalendarEvents(data);
         setIsCalendarOpen(true);
+      setIsLoading(false);
       }
     } catch (error) {
       console.error('Erreur lors de l\'envoi à l\'API:', error);
@@ -225,12 +230,10 @@ const CameraCapture = () => {
 
       const result = await workerRef.current.recognize(frameData);
       const text = result.data.text || '';
-      console.log('Texte détecté:', text);
 
       const lines = text.split('\n');
       for (const line of lines) {
         const processed = preprocessText(line);
-        console.log('Texte traité:', processed);
 
         if (isValidFormat(processed)) {
           console.log('Format valide trouvé:', processed);

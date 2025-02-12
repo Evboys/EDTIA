@@ -20,7 +20,7 @@ const localizer = dateFnsLocalizer({
   locales,
 });
 
-const CalendarModal = ({ isOpen, onClose, events, extractedText }) => {
+const CalendarModal = ({ isOpen, onClose, events, extractedText, isLoading }) => {
   const [formattedEvents, setFormattedEvents] = useState([]);
 
   useEffect(() => {
@@ -92,6 +92,14 @@ const CalendarModal = ({ isOpen, onClose, events, extractedText }) => {
     <>
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[999]" onClick={onClose} />
       <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gradient-to-br from-indigo-900 to-violet-900 p-5 rounded-2xl shadow-2xl w-[90%] h-[90%] z-[1000] flex flex-col border border-indigo-500/20">
+        {isLoading && (
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm z-[1001] flex items-center justify-center rounded-2xl">
+            <div className="flex flex-col items-center space-y-4">
+              <div className="w-12 h-12 border-4 border-violet-500 border-t-transparent rounded-full animate-spin"></div>
+              <p className="text-white font-medium">Chargement des événements...</p>
+            </div>
+          </div>
+        )}
         <div className='flex justify-between items-center mb-4'>
           <h2 className="text-white text-xl font-bold">{extractedText || 'Salle'}</h2>
           <button
